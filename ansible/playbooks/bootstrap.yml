@@ -1,0 +1,9 @@
+- name: bootstrap
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: create s3 bucket for terraform state
+    amazon.aws.s3_bucket:
+      name: rsi-tf-nomad-2023-state
+      state: present
+      region: "us-east-2"

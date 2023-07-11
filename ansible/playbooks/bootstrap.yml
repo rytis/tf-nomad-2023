@@ -7,3 +7,10 @@
       name: rsi-tf-nomad-2023-state
       state: present
       region: "us-east-2"
+  - name: create dynamodb table and key for state locking
+    community.aws.dynamodb_table:
+      name: rsi-tf-nomad-2023-state
+      region: "us-east-2"
+      hash_key_name: LockID
+      hash_key_type: STRING
+      billing_mode: PAY_PER_REQUEST

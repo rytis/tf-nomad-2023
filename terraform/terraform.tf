@@ -12,5 +12,6 @@ terraform {
     bucket = "rsi-tf-nomad-2023-state"
     region = "us-east-2"
     key = "terraform.tfstate"
+    dynamodb_table = "rsi-tf-nomad-2023-state"
   }
 }

@@ -36,13 +36,22 @@ module "ssh_key" {
   source = "./modules/ssh"
 }
 
-data "aws_ami" "amazon_linux" {
+# data "aws_ami" "amazon_linux" {
+#   most_recent = true
+#   owners = ["amazon"]
+#
+#   filter {
+#     name = "name"
+#     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+#   }
+# }
+
+data "aws_ami" "nomad" {
   most_recent = true
-  owners = ["amazon"]
 
   filter {
     name = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["nomad-2023-07"]
   }
 }
 
@@ -51,7 +60,7 @@ module "nomad_public" {
 
   count = length(module.vpc.public_subnets)
 
-  ami = data.aws_ami.amazon_linux.id
+  ami = data.aws_ami.nomad.id
   instance_type = "t2.micro"
 
   key_name = module.ssh_key.key_name

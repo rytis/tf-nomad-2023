@@ -14,16 +14,6 @@ module "vpc" {
   enable_nat_gateway = false
 }
 
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners = ["amazon"]
-
-  filter {
-    name = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-}
-
 module "nomad_security_group" {
   source  = "terraform-aws-modules/security-group/aws//modules/nomad"
   version = "~> 5.0"
@@ -44,6 +34,16 @@ module "ssh_security_group" {
 
 module "ssh_key" {
   source = "./modules/ssh"
+}
+
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners = ["amazon"]
+
+  filter {
+    name = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
 }
 
 module "nomad_public" {

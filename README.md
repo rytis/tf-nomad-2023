@@ -19,7 +19,7 @@ In `ansible/` run `ansible-playbook playbooks/bootstrap.yml`. This will create a
 
 In `packer/nomad/` run `packer build nomad.pkr.hcl`. This will build Nomad server AMI.
 
-## Porvision Nomad infra
+## Provision Nomad infra
 
 In `terraform/` run:
 - `terraform init`

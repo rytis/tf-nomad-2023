@@ -1,0 +1,4 @@
+- name: create stamp file
+  file:
+    path: "/ansible-run-{{ now() }}"
+    state: touch

@@ -35,3 +35,8 @@ variable "nomad_server_tags" {
     nomad-node-type = "server"
   }
 }
+
+variable "nomad_cloud_autojoin_string" {
+  type = string
+  default = "provider=aws tag_key=nomad-autojoin tag_value=yes"
+}

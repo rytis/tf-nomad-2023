@@ -36,16 +36,6 @@ module "ssh_key" {
   source = "./modules/ssh"
 }
 
-# data "aws_ami" "amazon_linux" {
-#   most_recent = true
-#   owners = ["amazon"]
-#
-#   filter {
-#     name = "name"
-#     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-#   }
-# }
-
 data "aws_ami" "nomad" {
   most_recent = true
 
@@ -70,6 +60,9 @@ module "nomad_server" {
     module.ssh_security_group.security_group_id
   ]
 
+  metadata_options = {
+    "instance_metadata_tags" = "enabled"
+  }
   instance_tags = var.nomad_server_tags
 
   create_iam_instance_profile = true
@@ -79,6 +72,8 @@ module "nomad_server" {
     SSMCore = data.aws_iam_policy.aws_ssm_core.arn
     CloudWatchAgent = data.aws_iam_policy.aws_cloudwatch_agent.arn
   }
+
+  user_data = templatefile("../scripts/server-bootstrap.sh", {})
 }
 
 data "aws_iam_policy_document" "nomad_cluster_auto_discovery" {

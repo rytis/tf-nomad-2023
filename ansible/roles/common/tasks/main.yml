@@ -1,0 +1,6 @@
+- name: install ansible
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - ansible

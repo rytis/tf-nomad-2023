@@ -2,7 +2,12 @@
   ansible.builtin.yum_repository:
     name: hashicorp
     description: Hashicorp Stable - $basearch
-    baseurl: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
+    baseurl: https://rpm.releases.hashicorp.com/AmazonLinux/latest/$basearch/stable
     enabled: yes
     gpgcheck: yes
     gpgkey: https://rpm.releases.hashicorp.com/gpg
+
+- name: install nomad
+  ansible.builtin.package:
+    name: nomad
+    state: present

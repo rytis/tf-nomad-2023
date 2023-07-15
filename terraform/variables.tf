@@ -27,3 +27,11 @@ variable "vpc_public_subnets" {
   type = list(string)
   default = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
 }
+
+variable "nomad_server_tags" {
+  type = map(string)
+  default = {
+    nomad-autojoin = "yes"
+    nomad-node-type = "server"
+  }
+}

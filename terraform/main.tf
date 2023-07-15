@@ -55,7 +55,7 @@ data "aws_ami" "nomad" {
   }
 }
 
-module "nomad_public" {
+module "nomad_server" {
   source = "terraform-aws-modules/ec2-instance/aws"
 
   count = length(module.vpc.public_subnets)
@@ -69,4 +69,40 @@ module "nomad_public" {
     module.nomad_security_group.security_group_id,
     module.ssh_security_group.security_group_id
   ]
+
+  instance_tags = var.nomad_server_tags
+
+  create_iam_instance_profile = true
+  iam_role_name = "nomad-auto-cluster"
+  iam_role_policies = {
+    NomadClusterAutodiscovery = aws_iam_policy.nomad_cluster_auto_discovery.arn
+    SSMCore = data.aws_iam_policy.aws_ssm_core.arn
+    CloudWatchAgent = data.aws_iam_policy.aws_cloudwatch_agent.arn
+  }
+}
+
+data "aws_iam_policy_document" "nomad_cluster_auto_discovery" {
+  statement {
+    effect = "Allow"
+    resources = ["*"]
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeTags",
+      "autoscaling:DescribeAutoScalingGroups"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "nomad_cluster_auto_discovery" {
+  name = "nomad-cluster-autodiscovery"
+  description = "Policy to allow autodiscovery of Nomad cluster nodes"
+  policy = data.aws_iam_policy_document.nomad_cluster_auto_discovery.json
+}
+
+data "aws_iam_policy" "aws_ssm_core" {
+  name = "AmazonSSMManagedInstanceCore"
+}
+
+data "aws_iam_policy" "aws_cloudwatch_agent" {
+  name = "CloudWatchAgentServerPolicy"
 }

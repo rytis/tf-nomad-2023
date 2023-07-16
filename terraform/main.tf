@@ -36,77 +36,21 @@ module "ssh_key" {
   source = "./modules/ssh"
 }
 
-data "aws_ami" "nomad" {
-  most_recent = true
+module "nomad_control_plane" {
+  source = "./modules/nomad_control_plane"
 
-  filter {
-    name = "name"
-    values = ["nomad-2023-07"]
-  }
-}
-
-module "nomad_server" {
-  source = "terraform-aws-modules/ec2-instance/aws"
-
-  count = length(module.vpc.public_subnets)
-
-  ami = data.aws_ami.nomad.id
-  instance_type = "t2.micro"
-
-  key_name = module.ssh_key.key_name
-  subnet_id = module.vpc.public_subnets[count.index]
-  vpc_security_group_ids = [
+  ami_name = "nomad-2023-07"
+  subnets = module.vpc.public_subnets
+  security_groups = [
     module.nomad_security_group.security_group_id,
     module.ssh_security_group.security_group_id
   ]
+  tags = var.nomad_server_tags
+  autojoin_string = var.nomad_cloud_autojoin_string
 
-  metadata_options = {
-    "instance_metadata_tags" = "enabled"
-  }
-  instance_tags = var.nomad_server_tags
-
-  create_iam_instance_profile = true
-  iam_role_name = "nomad-auto-cluster"
-  iam_role_policies = {
-    NomadClusterAutodiscovery = aws_iam_policy.nomad_cluster_auto_discovery.arn
-    SSMCore = data.aws_iam_policy.aws_ssm_core.arn
-    CloudWatchAgent = data.aws_iam_policy.aws_cloudwatch_agent.arn
-  }
-
-  user_data = templatefile("../scripts/server-bootstrap.sh", {
-    ansible_cloud_init_env = local.nomad_server_bootstrap_env
-  })
+  ssh_key_name = module.ssh_key.key_name
 }
 
-locals {
-  nomad_server_bootstrap_env = {
-    ans_ci_nomad_cluster_size = length(module.vpc.public_subnets)
-    ans_ci_nomad_cluster_autojoin_str = var.nomad_cloud_autojoin_string
-  }
-}
-
-data "aws_iam_policy_document" "nomad_cluster_auto_discovery" {
-  statement {
-    effect = "Allow"
-    resources = ["*"]
-    actions = [
-      "ec2:DescribeInstances",
-      "ec2:DescribeTags",
-      "autoscaling:DescribeAutoScalingGroups"
-    ]
-  }
-}
-
-resource "aws_iam_policy" "nomad_cluster_auto_discovery" {
-  name = "nomad-cluster-autodiscovery"
-  description = "Policy to allow autodiscovery of Nomad cluster nodes"
-  policy = data.aws_iam_policy_document.nomad_cluster_auto_discovery.json
-}
-
-data "aws_iam_policy" "aws_ssm_core" {
-  name = "AmazonSSMManagedInstanceCore"
-}
-
-data "aws_iam_policy" "aws_cloudwatch_agent" {
-  name = "CloudWatchAgentServerPolicy"
-}
+# module "nomad_worker_pool" {
+#   source = "./module/nomad_worker_pool"
+# }

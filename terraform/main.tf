@@ -73,7 +73,16 @@ module "nomad_server" {
     CloudWatchAgent = data.aws_iam_policy.aws_cloudwatch_agent.arn
   }
 
-  user_data = templatefile("../scripts/server-bootstrap.sh", {})
+  user_data = templatefile("../scripts/server-bootstrap.sh", {
+    ansible_cloud_init_env = local.nomad_server_bootstrap_env
+  })
+}
+
+locals {
+  nomad_server_bootstrap_env = {
+    ans_ci_nomad_cluster_size = length(module.vpc.public_subnets)
+    ans_ci_nomad_cluster_autojoin_str = var.nomad_cloud_autojoin_string
+  }
 }
 
 data "aws_iam_policy_document" "nomad_cluster_auto_discovery" {

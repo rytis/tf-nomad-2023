@@ -40,3 +40,8 @@ variable "nomad_cloud_autojoin_string" {
   type = string
   default = "provider=aws tag_key=nomad-autojoin tag_value=yes"
 }
+
+variable "nomad_server_ami_name" {
+  type = string
+  default = "nomad-2023-07"
+}

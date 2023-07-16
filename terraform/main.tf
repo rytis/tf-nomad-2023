@@ -39,7 +39,7 @@ module "ssh_key" {
 module "nomad_control_plane" {
   source = "./modules/nomad_control_plane"
 
-  ami_name = "nomad-2023-07"
+  ami_name = var.nomad_server_ami_name
   subnets = module.vpc.public_subnets
   security_groups = [
     module.nomad_security_group.security_group_id,

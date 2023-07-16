@@ -19,7 +19,7 @@ module "nomad_security_group" {
   version = "~> 5.0"
 
   name = "nomad-sg"
-  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_cidr_blocks = module.vpc.public_subnets_cidr_blocks
   vpc_id = module.vpc.vpc_id
 }
 
@@ -30,6 +30,41 @@ module "ssh_security_group" {
   name = "ssh-sg"
   ingress_cidr_blocks = ["0.0.0.0/0"]
   vpc_id = module.vpc.vpc_id
+}
+
+module "lb_security_group" {
+  source  = "terraform-aws-modules/security-group/aws//modules/web"
+  version = "~> 5.0"
+
+  name = "lb-sg"
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  vpc_id = module.vpc.vpc_id
+}
+
+module "nomad_ui_lb" {
+  source = "terraform-aws-modules/elb/aws"
+  version = "~> 4.0"
+
+  name = "lb-nomad-ui"
+  security_groups = [module.lb_security_group.security_group_id]
+  subnets = module.vpc.public_subnets
+  number_of_instances = length(module.nomad_control_plane.instance_ids)
+  instances = module.nomad_control_plane.instance_ids
+
+  listener = [{
+    instance_port = "4646"
+    instance_protocol = "HTTP"
+    lb_port = "80"
+    lb_protocol = "HTTP"
+  }]
+
+  health_check = {
+    target = "HTTP:4646/ui/"
+    interval = 10
+    healthy_threshold = 3
+    unhealthy_threshold = 10
+    timeout = 5
+  }
 }
 
 module "ssh_key" {

@@ -86,6 +86,17 @@ module "nomad_control_plane" {
   ssh_key_name = module.ssh_key.key_name
 }
 
-# module "nomad_worker_pool" {
-#   source = "./module/nomad_worker_pool"
-# }
+module "nomad_worker_pool" {
+  source = "./modules/nomad_worker_pool"
+
+  ami_name = var.nomad_worker_ami_name
+  subnets = module.vpc.public_subnets
+  security_groups = [
+    module.nomad_security_group.security_group_id,
+    module.ssh_security_group.security_group_id
+  ]
+  tags = var.nomad_worker_tags
+  autojoin_string = var.nomad_cloud_autojoin_string
+
+  ssh_key_name = module.ssh_key.key_name
+}

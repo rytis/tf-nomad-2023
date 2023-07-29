@@ -36,12 +36,24 @@ variable "nomad_server_tags" {
   }
 }
 
+variable "nomad_worker_tags" {
+  type = map(string)
+  default = {
+    nomad-node-type = "worker"
+  }
+}
+
 variable "nomad_cloud_autojoin_string" {
   type = string
   default = "provider=aws tag_key=nomad-autojoin tag_value=yes"
 }
 
 variable "nomad_server_ami_name" {
+  type = string
+  default = "nomad-2023-07"
+}
+
+variable "nomad_worker_ami_name" {
   type = string
   default = "nomad-2023-07"
 }

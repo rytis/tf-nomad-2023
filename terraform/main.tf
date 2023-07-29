@@ -11,7 +11,7 @@ module "vpc" {
   private_subnets = var.vpc_private_subnets
   public_subnets = var.vpc_public_subnets
   map_public_ip_on_launch = true
-  enable_nat_gateway = false
+  enable_nat_gateway = true
 }
 
 module "nomad_security_group" {
@@ -19,7 +19,10 @@ module "nomad_security_group" {
   version = "~> 5.0"
 
   name = "nomad-sg"
-  ingress_cidr_blocks = module.vpc.public_subnets_cidr_blocks
+  ingress_cidr_blocks = concat(
+    module.vpc.public_subnets_cidr_blocks,
+    module.vpc.private_subnets_cidr_blocks
+  )
   vpc_id = module.vpc.vpc_id
 }
 
@@ -90,7 +93,7 @@ module "nomad_worker_pool" {
   source = "./modules/nomad_worker_pool"
 
   ami_name = var.nomad_worker_ami_name
-  subnets = module.vpc.public_subnets
+  subnets = module.vpc.private_subnets
   security_groups = [
     module.nomad_security_group.security_group_id,
     module.ssh_security_group.security_group_id

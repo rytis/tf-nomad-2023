@@ -3,4 +3,5 @@
   roles:
     - common
     - installer
+    - task_drivers
     - nomad

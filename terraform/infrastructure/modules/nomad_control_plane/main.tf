@@ -32,7 +32,7 @@ module "nomad_server" {
     CloudWatchAgent = data.aws_iam_policy.aws_cloudwatch_agent.arn
   }
 
-  user_data = templatefile("../scripts/server-bootstrap.sh", {
+  user_data = templatefile("../../scripts/server-bootstrap.sh", {
     ansible_cloud_init_env = local.nomad_server_bootstrap_env
   })
 }

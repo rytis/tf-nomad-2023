@@ -20,8 +20,17 @@ In `ansible/` run `ansible-playbook playbooks/bootstrap.yml`. This will create a
 
 In `packer/nomad/` run `packer build nomad.pkr.hcl`. This will build Nomad server AMI.
 
-## Provision Nomad infra
+## Provision Nomad infrastructure
 
-In `terraform/` run:
+In `terraform/infrastructure` run:
 - `terraform init`
 - `terraform apply`
+
+This will create a simple Nomad cluster:
+- Three server nodes that also act as worker nodes
+- Three worker nodes
+- Server nodes are deployed on publically accessible subnet, public IPs will be printed out at the end of the terraform run
+- Worker nodes are deployed on private subnet
+- All nodes have SSM Session Manager configured for easy access from the browser
+- Loadbalancer is configured to allow access to Nomad UI (unauthenticated at this time)
+- Nomad server and worker node discovery is done using `go-discover`, ie is based on EC2 instnace tags

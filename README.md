@@ -18,9 +18,13 @@ In `ansible/` run `ansible-playbook playbooks/bootstrap.yml`. This will create a
 
 ## Build AMIs
 
-In `packer/nomad/` run `packer build nomad.pkr.hcl`. This will build Nomad server AMI.
+In `packer/nomad/` run:
+- `packer build nomad.pkr.hcl`
+- `packer build vault.pkr.hcl`
 
-## Provision Nomad infrastructure
+This will build Nomad and Vault server AMIs. Same Nomad AMI is used for worker and server nodes, the specific configuration is appliedlater at node boot time.
+
+## Provision Nomad and Vault infrastructure
 
 In `terraform/infrastructure` run:
 - `terraform init`
@@ -34,3 +38,6 @@ This will create a simple Nomad cluster:
 - All nodes have SSM Session Manager configured for easy access from the browser
 - Loadbalancer is configured to allow access to Nomad UI (unauthenticated at this time)
 - Nomad server and worker node discovery is done using `go-discover`, ie is based on EC2 instnace tags
+
+It also builds Vault cluster:
+- Three server nodes

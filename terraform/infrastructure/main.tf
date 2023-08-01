@@ -103,3 +103,17 @@ module "nomad_worker_pool" {
 
   ssh_key_name = module.ssh_key.key_name
 }
+
+module "vault_cluster" {
+  source = "./modules/vault_cluster"
+
+  ami_name = var.vault_server_ami_name
+  subnets = module.vpc.private_subnets
+  security_groups = [
+    module.ssh_security_group.security_group_id
+  ]
+  tags = var.vault_server_tags
+  autojoin_string = var.vault_cloud_autojoin_string
+
+  ssh_key_name = module.ssh_key.key_name
+}

@@ -33,7 +33,8 @@ module "vault_security_group" {
   name = "vault-sg"
   ingress_cidr_blocks = concat(
     module.vpc.public_subnets_cidr_blocks,
-    module.vpc.private_subnets_cidr_blocks
+    module.vpc.private_subnets_cidr_blocks,
+    ["0.0.0.0/0"]
   )
   vpc_id = module.vpc.vpc_id
 }
@@ -75,6 +76,32 @@ module "nomad_ui_lb" {
 
   health_check = {
     target = "HTTP:4646/ui/"
+    interval = 10
+    healthy_threshold = 3
+    unhealthy_threshold = 10
+    timeout = 5
+  }
+}
+
+module "vault_ui_lb" {
+  source = "terraform-aws-modules/elb/aws"
+  version = "~> 4.0"
+
+  name = "lb-vault-ui"
+  security_groups = [module.lb_security_group.security_group_id]
+  subnets = module.vpc.public_subnets
+  number_of_instances = length(module.vault_cluster.instance_ids)
+  instances = module.vault_cluster.instance_ids
+
+  listener = [{
+    instance_port = "8200"
+    instance_protocol = "HTTP"
+    lb_port = "80"
+    lb_protocol = "HTTP"
+  }]
+
+  health_check = {
+    target = "HTTP:8200/ui/"
     interval = 10
     healthy_threshold = 3
     unhealthy_threshold = 10

@@ -3,6 +3,15 @@
     src: vault.hcl.tpl
     dest: /etc/vault.d/vault.hcl
 
+- name: patch systemd file (disable unsupported options)
+  ansible.builtin.replace:
+    path: /usr/lib/systemd/system/vault.service
+    regexp: '^({{ item }}=.+)'
+    replace: '# \1'
+  loop:
+    - StartLimitIntervalSec
+    - StartLimitBurst
+
 - name: enable and start vault service
   ansible.builtin.service:
     name: vault
